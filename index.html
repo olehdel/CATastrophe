@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#171923">
+  <meta name="description" content="CATastrophe - a stealthy cat's guide to household chaos.">
+  <title>CATastrophe</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <main class="app-shell" aria-labelledby="game-title">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <span class="brand-mark" aria-hidden="true">C!</span>
+        <div>
+          <p class="eyebrow">A household in trouble</p>
+          <h1 id="game-title">CATastrophe</h1>
+        </div>
+      </div>
+      <span class="build-label">GAME PROTOTYPE</span>
+    </header>
+
+    <section class="game-frame" aria-label="Game">
+      <canvas id="game-canvas" aria-label="CATastrophe game display"></canvas>
+      <div id="life-lost-overlay" class="life-lost-overlay" aria-live="assertive" aria-atomic="true" hidden>
+        <div class="life-lost-card" role="alert">
+          <span class="life-lost-star life-lost-star--one" aria-hidden="true">✦</span>
+          <span class="life-lost-star life-lost-star--two" aria-hidden="true">✦</span>
+          <p class="eyebrow">Grandma got you</p>
+          <h2 id="life-lost-title">OUCH! Grandma caught you!</h2>
+          <p id="life-lost-subtitle" class="life-lost-subtitle">You lost a life.</p>
+          <div id="life-lost-lives" class="life-lost-lives" role="group" aria-label="2 lives remaining">
+            <span class="life-lost-label">Lives left</span>
+            <span class="life-lost-hearts" aria-hidden="true">
+              <svg class="life-lost-heart" viewBox="0 0 17 15"><polygon points="3,2 7,2 7,4 10,4 10,2 14,2 14,4 16,4 16,9 14,9 14,11 12,11 12,13 10,13 10,15 7,15 7,13 5,13 5,11 3,11 3,9 1,9 1,4 3,4"/></svg>
+              <svg class="life-lost-heart" viewBox="0 0 17 15"><polygon points="3,2 7,2 7,4 10,4 10,2 14,2 14,4 16,4 16,9 14,9 14,11 12,11 12,13 10,13 10,15 7,15 7,13 5,13 5,11 3,11 3,9 1,9 1,4 3,4"/></svg>
+              <svg class="life-lost-heart" viewBox="0 0 17 15"><polygon points="3,2 7,2 7,4 10,4 10,2 14,2 14,4 16,4 16,9 14,9 14,11 12,11 12,13 10,13 10,15 7,15 7,13 5,13 5,11 3,11 3,9 1,9 1,4 3,4"/></svg>
+            </span>
+            <output id="life-lost-count">2</output>
+          </div>
+        </div>
+      </div>
+      <div id="run-hud" class="run-hud" hidden>
+        <div id="room-tracker" class="room-tracker" role="group" aria-label="Room destruction status">
+          <div class="room-tracker__summary">
+            <span class="hud-label">Rooms</span>
+            <output id="room-completion" aria-live="off">0/7</output>
+          </div>
+          <div id="room-progress" class="room-tracker__scroll" role="list" aria-label="Rooms"></div>
+        </div>
+        <div id="furniture-counter" class="furniture-counter" role="group" aria-label="Furniture destroyed">
+          <span class="hud-label">Furniture</span>
+          <output id="furniture-count" aria-live="polite">0/18</output>
+        </div>
+        <div id="game-timer" class="game-timer" role="timer" aria-label="Time remaining">
+          <span class="hud-label">Time</span>
+          <output id="game-timer-value" aria-live="off">05:00</output>
+        </div>
+        <div id="life-display" class="life-display" role="group" aria-label="3 of 3 lives remaining">
+          <span class="hud-label life-display__label">Lives</span>
+          <span class="life-display__hearts">
+            <svg class="life-heart" viewBox="0 0 17 15" aria-hidden="true"><polygon points="3,2 7,2 7,4 10,4 10,2 14,2 14,4 16,4 16,9 14,9 14,11 12,11 12,13 10,13 10,15 7,15 7,13 5,13 5,11 3,11 3,9 1,9 1,4 3,4"/></svg>
+            <svg class="life-heart" viewBox="0 0 17 15" aria-hidden="true"><polygon points="3,2 7,2 7,4 10,4 10,2 14,2 14,4 16,4 16,9 14,9 14,11 12,11 12,13 10,13 10,15 7,15 7,13 5,13 5,11 3,11 3,9 1,9 1,4 3,4"/></svg>
+            <svg class="life-heart" viewBox="0 0 17 15" aria-hidden="true"><polygon points="3,2 7,2 7,4 10,4 10,2 14,2 14,4 16,4 16,9 14,9 14,11 12,11 12,13 10,13 10,15 7,15 7,13 5,13 5,11 3,11 3,9 1,9 1,4 3,4"/></svg>
+          </span>
+        </div>
+      </div>
+      <aside id="movement-test-panel" class="movement-test-panel" aria-label="Gameplay HUD" hidden>
+        <div class="movement-test-heading"><strong>Run status</strong><span>CATastrophe</span></div>
+        <div class="movement-test-row score-row"><span>Destruction score</span><output id="score-value">0</output><span id="score-notice" class="score-notice" aria-live="polite"></span></div>
+        <p id="mouse-reward" class="mouse-reward" aria-live="polite"></p>
+        <p id="grandma-reaction" class="grandma-reaction" aria-live="polite"></p>
+        <div class="movement-test-row lives-row"><span>Lives</span><output id="lives-value" aria-live="polite">♥♥♥ 3/3</output></div>
+        <p id="capture-message" class="capture-message" aria-live="assertive"></p>
+        <div class="movement-test-row"><span>Furniture</span><output id="interaction-target">No furniture in reach</output></div>
+        <div id="mouse-target-row" class="movement-test-row mouse-target-row" hidden><span>Mouse</span><output>In reach · press E</output></div>
+        <div class="movement-test-row"><span>Stage progress</span><output id="scratch-progress-value">Hold E near furniture</output></div>
+        <progress id="scratch-progress" class="scratch-meter" max="100" value="0">0%</progress>
+        <div class="movement-test-row"><span>Old lady</span><output id="old-lady-state">NORMAL</output></div>
+        <div id="detection-row" class="movement-test-row detection-row" hidden><span>Detection</span><output id="detection-value">0%</output></div>
+        <progress id="detection-meter" class="detection-meter" max="100" value="0" hidden>0%</progress>
+        <div class="movement-test-row"><span>Mode</span><output id="movement-mode">IDLE</output></div>
+        <div class="movement-test-row"><label for="energy-meter">Sprint energy</label><output id="energy-value">100%</output></div>
+        <progress id="energy-meter" class="energy-meter" max="100" value="100">100%</progress>
+        <div class="movement-test-row"><span>World position</span><output id="cat-coordinates">1150, 840</output></div>
+        <p>WASD move <i>|</i> Shift sneak <i>|</i> Space sprint <i>|</i> Hold E scratch/catch</p>
+      </aside>
+      <div id="touch-controls" class="touch-controls" aria-label="Touchscreen game controls" hidden>
+        <div id="virtual-joystick" class="virtual-joystick" role="application" aria-label="Virtual movement joystick">
+          <span class="virtual-joystick-knob" aria-hidden="true"></span>
+        </div>
+        <div class="touch-actions" role="group" aria-label="Game actions">
+          <button class="touch-button touch-button--action" type="button" data-touch-key="KeyE" aria-label="Hold to interact">ACTION</button>
+          <button class="touch-button" type="button" data-touch-key="Space" aria-label="Hold to sprint">SPRINT</button>
+          <button class="touch-button" type="button" data-touch-key="ShiftLeft" aria-label="Hold to sneak">SNEAK</button>
+        </div>
+      </div>
+      <section id="main-menu" class="screen screen--menu" aria-labelledby="menu-title">
+        <div class="menu-card">
+          <p class="eyebrow menu-eyebrow">ONE CAT. ONE VERY TIDY HOUSE.</p>
+          <h2 id="menu-title">Let the <span>mischief</span> begin.</h2>
+          <p class="screen-copy">The house is peaceful. For now.</p>
+          <div class="menu-actions">
+            <button id="start-button" class="button button--primary" type="button"><span>PLAY GAME</span><span aria-hidden="true">&gt;</span></button>
+            <button id="main-menu-settings-button" class="button button--secondary settings-entry" type="button">Settings</button>
+          </div>
+        </div>
+        <p class="menu-hint">A little chaos goes a long way.</p>
+      </section>
+
+      <section id="paused-screen" class="screen screen--overlay" aria-labelledby="paused-title" hidden>
+        <div class="dialog-card">
+          <p class="eyebrow">Take a breather</p>
+          <h2 id="paused-title">Paused</h2>
+          <p class="screen-copy">The house can wait a moment.</p>
+          <div class="button-row">
+            <button id="resume-button" class="button button--primary" type="button">Resume</button>
+            <button id="paused-restart-button" class="button button--secondary" type="button">Restart</button>
+            <button id="paused-settings-button" class="button button--secondary" type="button">Settings</button>
+            <button id="main-menu-button" class="button button--secondary" type="button">Main Menu</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="victory-screen" class="screen screen--overlay" aria-labelledby="victory-title" hidden>
+        <div class="victory-confetti" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="dialog-card results-card">
+          <p class="eyebrow">A job well done</p>
+          <h2 id="victory-title">VICTORY!</h2>
+          <p id="victory-reason" class="screen-copy">You kept the house in delightful chaos.</p>
+          <p id="victory-medal" class="victory-medal" data-rank-tier="bronze">Bronze medal</p>
+          <div class="results-grid">
+            <span>Final score</span><strong data-result="score">0</strong>
+            <span>Final rank</span><strong data-result="rank">—</strong>
+            <span>Lives remaining</span><strong data-result="lives">3</strong>
+            <span>Mice caught</span><strong data-result="mice">0</strong>
+            <span>Furniture destroyed</span><strong data-result="furniture">0/18</strong>
+            <span>Run duration</span><strong data-result="duration">00:00</strong>
+          </div>
+          <div class="button-row results-buttons">
+            <button id="victory-restart-button" class="button button--primary" type="button">Play Again</button>
+            <button id="victory-menu-button" class="button button--secondary" type="button">Main Menu</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="game-over-screen" class="screen screen--overlay" aria-labelledby="game-over-title" hidden>
+        <div id="standard-game-over-content" class="dialog-card results-card">
+          <p class="eyebrow">That's a wrap</p>
+          <h2 id="game-over-title">DEFEAT</h2>
+          <p id="game-over-reason" class="screen-copy">No medal this run.</p>
+          <p id="game-over-medal" class="victory-medal" data-rank-tier="lost">No medal (Lost)</p>
+          <div class="results-grid">
+            <span>Final score</span><strong data-result="score">0</strong>
+            <span>Final rank</span><strong data-result="rank">—</strong>
+            <span>Lives remaining</span><strong data-result="lives">0</strong>
+            <span>Mice caught</span><strong data-result="mice">0</strong>
+            <span>Furniture destroyed</span><strong data-result="furniture">0/18</strong>
+            <span>Run duration</span><strong data-result="duration">00:00</strong>
+          </div>
+          <div class="button-row results-buttons">
+            <button id="game-over-restart-button" class="button button--primary" type="button">PLAY AGAIN</button>
+            <button id="game-over-menu-button" class="button button--secondary" type="button">Main Menu</button>
+          </div>
+        </div>
+        <div id="third-capture-results" class="third-capture-results" hidden>
+          <img class="sad-cat-art" src="assets/characters/cat-sad-wet.png" alt="A wet orange tabby cat sits sadly in a puddle." width="1312" height="1199">
+          <h2 id="third-capture-game-over-title" class="third-capture-title">GAME OVER</h2>
+          <p class="third-capture-subtitle">You were caught and forced to wash!</p>
+          <p id="third-capture-medal" class="third-capture-medal victory-medal" data-rank-tier="lost">No medal (Lost)</p>
+          <section class="third-capture-performance" aria-labelledby="third-capture-performance-title">
+            <h3 id="third-capture-performance-title">YOUR PERFORMANCE</h3>
+            <div class="third-capture-stats">
+              <div class="third-capture-highlight">
+                <span class="third-capture-stat-label">Final Score</span>
+                <strong class="third-capture-score" data-result="score">0</strong>
+              </div>
+              <div class="third-capture-highlight">
+                <span class="third-capture-stat-label">Rank achieved</span>
+                <strong class="third-capture-rank" data-result="rank">—</strong>
+              </div>
+              <div class="third-capture-details">
+                <span>Lives remaining</span><strong data-result="lives-remaining">0</strong>
+                <span>Mice caught</span><strong data-result="mice">0</strong>
+                <span>Furniture destroyed</span><strong data-result="furniture">0/18</strong>
+                <span>Time survived</span><strong data-result="duration">00:00</strong>
+              </div>
+            </div>
+          </section>
+          <div class="button-row results-buttons">
+            <button id="third-capture-restart-button" class="button button--primary" type="button">PLAY AGAIN</button>
+            <button id="third-capture-menu-button" class="button button--secondary" type="button">MAIN MENU</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="settings-overlay" class="screen screen--overlay settings-overlay" aria-labelledby="settings-title" hidden>
+        <div class="dialog-card settings-card">
+          <p class="eyebrow">Tune the atmosphere</p>
+          <h2 id="settings-title">Settings</h2>
+          <p class="screen-copy">Adjust audio and touch controls.</p>
+          <div class="volume-settings">
+            <label class="volume-setting" for="master-volume">
+              <span class="volume-heading">Master Volume <output id="master-volume-value">78%</output></span>
+              <input id="master-volume" type="range" min="0" max="100" step="1" value="78">
+            </label>
+            <label class="volume-setting" for="music-volume">
+              <span class="volume-heading">Music Volume <output id="music-volume-value">48%</output></span>
+              <input id="music-volume" type="range" min="0" max="100" step="1" value="48">
+            </label>
+            <label class="volume-setting" for="effects-volume">
+              <span class="volume-heading">Sound Effects Volume <output id="effects-volume-value">72%</output></span>
+              <input id="effects-volume" type="range" min="0" max="100" step="1" value="72">
+            </label>
+          </div>
+          <div class="mobile-mode-setting">
+            <label class="mobile-mode-label" for="mobile-mode-toggle">
+              <span class="volume-heading">Mobile Mode <output id="mobile-mode-value">Off</output></span>
+              <span class="mobile-mode-copy">Show the joystick and touch action buttons.</span>
+            </label>
+            <input id="mobile-mode-toggle" type="checkbox" role="switch" aria-checked="false" aria-label="Mobile Mode">
+          </div>
+          <div class="button-row settings-buttons">
+            <button id="mute-button" class="button button--secondary" type="button" aria-pressed="false">Mute audio</button>
+            <button id="close-settings-button" class="button button--primary" type="button">Close</button>
+          </div>
+        </div>
+      </section>
+
+      <aside id="tutorial-overlay" class="tutorial-panel" aria-label="Gameplay tutorial" aria-live="polite" hidden>
+        <div class="tutorial-head">
+          <div id="tutorial-dots" class="tutorial-dots" aria-hidden="true"></div>
+          <p id="tutorial-progress" class="tutorial-progress">STEP 1 / 5</p>
+        </div>
+        <div id="tutorial-step" class="tutorial-step">
+          <div id="tutorial-icon" class="tutorial-icon" aria-hidden="true"></div>
+          <div class="tutorial-copy">
+            <h2 id="tutorial-title">Move</h2>
+            <p id="tutorial-body" class="tutorial-body"></p>
+            <p id="tutorial-controls" class="tutorial-controls" hidden></p>
+          </div>
+        </div>
+      </aside>
+      <div id="tutorial-guide" class="tutorial-guide" aria-hidden="true" hidden>
+        <span id="tutorial-guide-ring" class="tutorial-guide-ring"></span>
+        <span id="tutorial-guide-arrow" class="tutorial-guide-arrow"></span>
+      </div>
+    </section>
+
+    <footer class="statusbar">
+      <p id="status-message" aria-live="polite">Ready when you are.</p>
+      <button id="pause-button" class="button button--quiet" type="button" hidden>Pause <kbd>Esc</kbd></button>
+    </footer>
+  </main>
+</body>
+</html>

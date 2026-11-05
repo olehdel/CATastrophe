@@ -1,0 +1,20 @@
+# Local server logs and temporary data
+.catastrophe-server/
+*.log
+
+# Debugging
+debug/
+debug.txt
+
+# Editor temporary files
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
